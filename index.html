@@ -503,11 +503,11 @@
                 console.error('加载data.js失败:', error);
             }
 
-            fetch('data.js')
-                .then(response => response.text())
-                .then(text => {
-                    eval(text);
-                    allStudents = quizDataEmbedded;
+            // 如果无法加载data.js，尝试加载quiz_data.json
+            fetch('quiz_data.json')
+                .then(response => response.json())
+                .then(data => {
+                    allStudents = data;
                     allStudents = allStudents.sort(() => Math.random() - 0.5);
                     showQuestion();
                 })
