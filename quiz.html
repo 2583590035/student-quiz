@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息答题系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-card {
+            text-align: center;
+        }
+
+        .image-container {
+            margin: 30px 0;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: #f5f5f5;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 400px;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .question {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .answer-box {
+            background: #f0f4ff;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .answer-box.revealed {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .answer-box.hidden {
+            cursor: pointer;
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+        }
+
+        .answer-box.hidden:hover {
+            background: #ffe082;
+        }
+
+        .answer-label {
+            color: #999;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .answer-content {
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .answer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .answer-item:last-child {
+            border-bottom: none;
+        }
+
+        .answer-label-inline {
+            color: #999;
+            font-size: 12px;
+            flex: 1;
+        }
+
+        .answer-value {
+            color: #333;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: right;
+            flex: 1;
+        }
+
+        .buttons-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            background: #f5f7fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .completion-screen h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .completion-screen p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .completion-emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .hint {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            border-left: 4px solid #1976d2;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .image-container img,
+            .image-placeholder {
+                height: 300px;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .buttons-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 学生信息答题系统</h1>
+            <p>看照片，点击查看答案</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat">
+                <div class="stat-label">总题数</div>
+                <div class="stat-value" id="totalQuestions">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">已完成</div>
+                <div class="stat-value" id="completedQuestions">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">进度</div>
+                <div class="stat-value" id="percentage">0%</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="progress-text" id="progressText">加载中...</div>
+
+        <div id="quizContent">
+            <!-- 答题内容将由JavaScript生成 -->
+        </div>
+    </div>
+
+    <script>
+        let allStudents = [];
+        let currentIndex = 0;
+        let answerRevealed = false;
+
+        // 加载数据
+        function loadData() {
+            try {
+                if (typeof quizDataEmbedded !== 'undefined') {
+                    allStudents = quizDataEmbedded;
+                    // 打乱顺序
+                    allStudents = allStudents.sort(() => Math.random() - 0.5);
+                    showQuestion();
+                    return;
+                }
+            } catch (error) {
+                console.error('加载data.js失败:', error);
+            }
+
+            fetch('quiz_data.json')
+                .then(response => response.json())
+                .then(data => {
+                    allStudents = data;
+                    allStudents = allStudents.sort(() => Math.random() - 0.5);
+                    showQuestion();
+                })
+                .catch(error => {
+                    console.error('加载失败:', error);
+                    document.getElementById('quizContent').innerHTML = '<div style="text-align:center; color:#d32f2f; padding:40px;">无法加载数据</div>';
+                });
+        }
+
+        // 显示当前问题
+        function showQuestion() {
+            if (currentIndex >= allStudents.length) {
+                showCompletion();
+                return;
+            }
+
+            const student = allStudents[currentIndex];
+            answerRevealed = false;
+
+            const progress = Math.round(((currentIndex) / allStudents.length) * 100);
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `第 ${currentIndex + 1} / ${allStudents.length} 题`;
+            document.getElementById('totalQuestions').textContent = allStudents.length;
+            document.getElementById('completedQuestions').textContent = currentIndex;
+            document.getElementById('percentage').textContent = progress + '%';
+
+            const quizContent = document.getElementById('quizContent');
+            quizContent.innerHTML = `
+                <div class="quiz-card">
+                    <div class="hint">💡 提示：看照片，猜测学号、姓名和班级。点击答案框查看正确答案。</div>
+
+                    <div class="image-container">
+                        <img src="13160/${student.照片}" alt="学生照片" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="image-placeholder">无法加载照片</div>
+                    </div>
+
+                    <div class="question">
+                        <p>这个学生的信息是什么？</p>
+                        <p class="question-text">点击下方查看答案</p>
+                    </div>
+
+                    <div class="answer-box ${answerRevealed ? 'revealed' : 'hidden'}" id="answerBox" onclick="revealAnswer()">
+                        ${answerRevealed ? getAnswerHTML(student) : '<div class="answer-label">点击查看答案</div>'}
+                    </div>
+
+                    <div class="buttons-group">
+                        <button class="btn btn-secondary" onclick="previousQuestion()" ${currentIndex === 0 ? 'disabled' : ''}>← 上一题</button>
+                        <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">下一题 →</button>
+                    </div>
+                </div>
+            `;
+
+            // 重新添加事件监听
+            document.getElementById('answerBox').addEventListener('click', revealAnswer);
+        }
+
+        // 显示答案HTML
+        function getAnswerHTML(student) {
+            return `
+                <div style="width: 100%; text-align: left;">
+                    <div class="answer-item">
+                        <div class="answer-label-inline">学号</div>
+                        <div class="answer-value">${student.学号}</div>
+                    </div>
+                    <div class="answer-item">
+                        <div class="answer-label-inline">姓名</div>
+                        <div class="answer-value">${student.姓名}</div>
+                    </div>
+                    <div class="answer-item">
+                        <div class="answer-label-inline">班级</div>
+                        <div class="answer-value">${student.班级}</div>
+                    </div>
+                    <div class="answer-item">
+                        <div class="answer-label-inline">宿舍</div>
+                        <div class="answer-value">${student.宿舍}</div>
+                    </div>
+                    <div class="answer-item">
+                        <div class="answer-label-inline">地址</div>
+                        <div class="answer-value">${student.地址}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 显示答案
+        function revealAnswer() {
+            if (answerRevealed) return;
+
+            answerRevealed = true;
+            const student = allStudents[currentIndex];
+            const answerBox = document.getElementById('answerBox');
+            answerBox.classList.remove('hidden');
+            answerBox.classList.add('revealed');
+            answerBox.innerHTML = getAnswerHTML(student);
+            answerBox.style.cursor = 'default';
+        }
+
+        // 下一题
+        function nextQuestion() {
+            currentIndex++;
+            showQuestion();
+            window.scrollTo(0, 0);
+        }
+
+        // 上一题
+        function previousQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showQuestion();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // 显示完成界面
+        function showCompletion() {
+            const quizContent = document.getElementById('quizContent');
+            quizContent.innerHTML = `
+                <div class="completion-screen">
+                    <div class="completion-emoji">🎉</div>
+                    <h2>完成！</h2>
+                    <p>你已经完成了全部 ${allStudents.length} 题</p>
+                    <p style="color: #999; font-size: 14px;">你现在应该能认识所有同学了！</p>
+                    <div class="buttons-group" style="margin-top: 40px;">
+                        <button class="btn btn-secondary" onclick="restart()">重新开始</button>
+                        <button class="btn btn-primary" onclick="shuffle()">随机打乱重新做</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 重新开始
+        function restart() {
+            currentIndex = 0;
+            showQuestion();
+            window.scrollTo(0, 0);
+        }
+
+        // 打乱顺序重新做
+        function shuffle() {
+            allStudents = allStudents.sort(() => Math.random() - 0.5);
+            currentIndex = 0;
+            showQuestion();
+            window.scrollTo(0, 0);
+        }
+
+        // 初始化
+        loadData();
+    </script>
+    <script src="data.js"></script>
+</body>
+</html>
